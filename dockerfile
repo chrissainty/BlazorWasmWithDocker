@@ -1,14 +1,14 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY BlazorWasmDocker.csproj .
-RUN dotnet restore "BlazorWasmDocker.csproj"
+COPY BlazorWasmWithDocker.csproj .
+RUN dotnet restore BlazorWasmWithDocker.csproj
 COPY . .
-RUN dotnet build "BlazorWasmDocker.csproj" -c Release -o /app/build
+RUN dotnet build BlazorWasmWithDocker.csproj -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "BlazorWasmDocker.csproj" -c Release -o /app/publish
+RUN dotnet publish BlazorWasmWithDocker.csproj -c Release -o /app/publish
 
 FROM nginx:alpine AS final
 WORKDIR /usr/share/nginx/html
-COPY --from=publish /app/publish/BlazorWasmDocker/dist .
+COPY --from=publish /app/publish/wwwroot .
 COPY nginx.conf /etc/nginx/nginx.conf
